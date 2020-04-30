@@ -1,0 +1,332 @@
+<html xmlns:th="http://www.w3.org/1999/xhtml"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layouts/main.html"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <link th:href="@{https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,600,600i,700,700i,900}" rel="stylesheet">
+
+    <link th:href="@{/assets/vendor/bootstrap/css/bootstrap.min.css}" rel = "stylesheet">
+    <link th:href="@{/assets/vendor/icofont/icofont.min.css}" >
+    <link th:href="@{/assets/vendor/boxicons/css/boxicons.min.css}" rel = "stylesheet">
+    <link th:href="@{/assets/vendor/animate.css/animate.min.css}" rel = "stylesheet">
+    <link th:href="@{assets/vendor/venobox/venobox.css}" rel = "stylesheet" >
+    <link th:href="@{assets/vendor/aos/aos.css}" rel = "stylesheet" >
+
+
+    <link th:href="@{/assets/css/style.css}" rel = "stylesheet">
+
+
+
+</head>
+
+
+<body style="background-color: #d3d8ff">
+    <div layout:fragment = "contentPart">
+
+        <div class="main-container">
+                
+                <h2 style = "margin-top: 30px">  Welcome <span th:text = "${user.fullName}"></span> </h2>
+                <p >We are glad to see you here again!</p>
+
+        </div>
+
+        <div sec:authorize="hasAnyRole('ROLE_USER')">
+            <div class = "container">
+                <div class = "row">
+                <div class="col" id="div1">
+                    <h3 > You are a User :) </h3>
+                        <div class="text-center">
+                        <h2>Upload Your Item</h2>
+                                <img src="assets/img/upload.png" class="img_upload" alt="">
+                                    <form th:action = "@{'/additem'}" method="get"  style="margin-top: 10px">
+                                        <button  class="btn btn-primary" type="submit">Upload</button>
+                                    </form>
+                        </div>
+                </div>
+                <div class="col" id="div2">
+                        <div class="jumbotron" th:each = "items : ${items}">
+                            <h1 class="display-4" th:text = "${items.name}"></h1>
+                            <p th:text = "${'Category: ' + items.categories.name}"></p>
+                            <p th:text = "${'Price: ' + items.price}"></p>
+                            <p class="lead" th:text = "${items.description}"></p>
+                            <hr class="my-4">
+                            <p  th:text = "${items.author.fullName}"></p>
+                            <a class="btn btn-primary btn-lg" th:href = "@{'/details/'+${items.id}}" role="button">Learn more</a>
+                            <form th:action = "@{'/deleteItem'}" method="post" sec:authorize="hasAnyRole('ROLE_MODERATOR')">
+                                <input type="hidden" th:value = "${items.id}" name="id">
+                                <button class="btn btn-danger">DELETE</button>
+                            </form>
+                        </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <div sec:authorize="hasAnyRole('ROLE_ADMIN')">
+            <h3> You are an Admin</h3>
+            <div class="row">
+                <div class="col-sm-6">
+                        <h2 class="sub-header">Users</h2>
+                    <table cellpadding="20" class="table table-dark">
+                        <tr>
+                            <td>
+                                ID
+                            </td>
+
+                            <td>
+                                E-mail
+                            </td>
+                            <td>
+                                Full Name
+                            </td>
+                            <td>
+                                Status
+                            </td>
+
+                            <td>
+                                Block
+                            </td>
+                            <td>
+                                UNBLOCK
+                            </td>
+                            <td>
+                                Delete
+                            </td>
+                        </tr>
+                        <tr th:each = "user : ${users}">
+                            <td th:text = "${user.id}"></td>
+                            <td th:text = "${user.email}"></td>
+                            <td th:text = "${user.fullName}"></td>
+                            <td th:if="${user.active}">Active</td>
+                            <td th:unless="${user.active}">Blocked</td>
+                            <td>
+                                <a th:href = "@{'/block/'+${user.id}}">BLOCK</a>
+                            </td>
+                            <td>
+                                <a th:href = "@{'/unblock/'+${user.id}}">UNBLOCK</a>
+                            </td>
+                            <td>
+                                <a th:href = "@{'/deleteUser/'+${user.id}}">DELETE</a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+
+                <div class="col-sm-6">
+                        <h2 class="sub-header">MODERATORS</h2>
+                        <table cellpadding="20" class="table table-dark">
+                            <tr>
+                                <td>
+                                    ID
+                                </td>
+                                <td>
+                                    email
+                                </td>
+                                <td>
+                                    Full Name
+                                </td>
+                                <td>
+                                    Status
+                                </td>
+                                <td>
+                                    BLOCK
+                                </td>
+                                <td>
+                                    UNBLOCK
+                                </td>
+
+                                <td>
+                                    Refresh Password
+                                </td>
+                                <td>
+                                    Delete
+                                </td>
+
+                            </tr>
+                            <tr th:each = "moder : ${moderators}">
+                                <td th:text = "${moder.id}"></td>
+                                <td th:text = "${moder.email}"></td>
+                                <td th:text = "${moder.fullName}"></td>
+                                <td th:if="${moder.active}">Active</td>
+                                <td th:unless="${moder.active}">Blocked</td>
+                                <td>
+                                    <a th:href = "@{'/block/'+${moder.id}}">BLOCK</a>
+                                </td>
+                                <td>
+                                    <a th:href = "@{'/unblock/'+${moder.id}}">UNBLOCK</a>
+                                </td>
+
+                                <td>
+                                    <a th:href = "@{'/refreshPass/'+${moder.id}}">REFRESH</a>
+                                </td>
+                                <td>
+                                    <a th:href = "@{'/deleteUser/'+${moder.id}}">Delete</a>
+                                </td>
+                            </tr>
+                        </table>
+                </div>
+            </div>
+
+        </div>
+
+
+
+<!--        //________________Moderator_________-->
+
+        <div sec:authorize="hasAnyRole('ROLE_MODERATOR')">
+            <h3> You are a Moderator</h3>
+            <div class="row">-->
+                <div class="col-sm-6">
+                    <h2 class="sub-header">Users</h2>
+                    <table cellpadding="20" class="table table-dark">
+                        <tr>
+                            <td>
+                                ID
+                            </td>
+
+                            <td>
+                                E-mail
+                            </td>
+                            <td>
+                                Full Name
+                            </td>
+                            <td>
+                                Status
+                            </td>
+
+                            <td>
+                                Block
+                            </td>
+                            <td>
+                                UNBLOCK
+                            </td>
+
+                        </tr>
+                        <tr th:each = "user : ${users}">
+                            <td th:text = "${user.id}"></td>
+                            <td th:text = "${user.email}"></td>
+                            <td th:text = "${user.fullName}"></td>
+                            <td th:if="${user.active}">Active</td>
+                            <td th:unless="${user.active}">Blocked</td>
+                            <td>
+                                <a th:href = "@{'/block/'+${user.id}}">BLOCK</a>
+                            </td>
+                            <td>
+                                <a th:href = "@{'/unblock/'+${user.id}}">UNBLOCK</a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+
+</div>
+
+        <script th:src="@{/assets/vendor/jquery/jquery.min.js}"></script>
+        <script th:src="@{/assets/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+        <script th:src="@{/assets/vendor/jquery.easing/jquery.easing.min.js}"></script>
+        <script th:src="@{/assets/vendor/php-email-form/validate.js}"></script>
+        <script th:src="@{/assets/vendor/jquery-sticky/jquery.sticky.js}"></script>
+        <script th:src="@{/assets/vendor/venobox/venobox.min.js}"></script>
+        <script th:src="@{/assets/vendor/waypoints/jquery.waypoints.min.js}"></script>
+        <script th:src="@{/assets/vendor/counterup/counterup.min.js}"></script>
+        <script th:src="@{/assets/vendor/isotope-layout/isotope.pkgd.min.js}"></script>
+        <script th:src="@{/assets/vendor/aos/aos.js}"></script>
+
+
+        <script th:src="@{/assets/js/main.js}"></script>
+</div>
+
+</body>
+</html>
+
+
+
+
+
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.w3.org/1999/xhtml"-->
+<!--      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"-->
+<!--      layout:decorator="layouts/main.html"-->
+<!--      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">-->
+
+<!--<head>-->
+<!--    <meta charset="utf-8">-->
+<!--    <meta content="width=device-width, initial-scale=1.0" name="viewport">-->
+
+<!--    <title>Project Bridge</title>-->
+<!--    <meta content="" name="descriptison">-->
+<!--    <meta content="" name="keywords">-->
+
+
+
+
+<!--    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,600,600i,700,700i,900" rel="stylesheet">-->
+
+
+<!--    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel = "stylesheet">-->
+<!--    <link href="assets/vendor/icofont/icofont.min.css" >-->
+<!--    <link href="assets/vendor/boxicons/css/boxicons.min.css" rel = "stylesheet">-->
+<!--    <link href="assets/vendor/animate.css/animate.min.css" rel = "stylesheet">-->
+<!--    <link href="assets/vendor/venobox/venobox.css" rel = "stylesheet" >-->
+<!--    <link href="assets/vendor/aos/aos.css" rel = "stylesheet" >-->
+
+
+<!--    <link href="assets/css/style.css" rel = "stylesheet">-->
+<!--</head>-->
+
+
+
+<!--<body>-->
+
+<!--<div layout:fragment = "contentPart">-->
+<!--    <main id="main">-->
+<!--        <section id="about" class="about">-->
+<!--            <div class="container">-->
+
+<!--                <div class="row no-gutters">-->
+<!--                    <div class="col-lg-6 video-box">-->
+<!--                        <img src="assets/img/about.jpg" class="img-fluid" alt="">-->
+<!--                    </div>-->
+
+<!--                    <div class="col-lg-6 d-flex flex-column justify-content-center about-content">-->
+
+<!--                        <div class="section-title">-->
+<!--                            <h2>About</h2>-->
+<!--                        </div>-->
+
+<!--                        <div class="icon-box" data-aos="fade-up" data-aos-delay="100">-->
+<!--                            <div class="icon"><i class="bx bx-fingerprint"></i></div>-->
+<!--                            <h4 class="title" th:text = "${'Name: '+ items.name}"><a href=""></a></h4>-->
+<!--                            <h4 class="title" th:text = "${'Category: ' + items.categories.name}"><a href=""></a></h4>-->
+<!--                            <h4 class="title" th:text = "${'Price: ' + items.price}"><a href=""></a></h4>-->
+<!--                        </div>-->
+
+<!--                        <div class="icon-box" data-aos="fade-up" data-aos-delay="100">-->
+<!--                            <div class="icon"><i class="bx bx-gift"></i></div>-->
+<!--                            <h4 class="title"><a href="">Description</a></h4>-->
+<!--                            <p class="description" th:text = "${items.description}"></p>-->
+<!--                        </div>-->
+
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--            </div>-->
+<!--        </section>&lt;!&ndash; End About Us Section &ndash;&gt;-->
+
+
+
+<!--        <a sec:authorize="hasAnyRole('ROLE_MODERATOR')" class="btn btn-primary btn-lg" th:href="@{'/editPage/' + ${items.id}}" role="button">Edit</a>-->
+
+<!--        <hr class="my-4">-->
+
+<!--        <a class="btn btn-primary btn-lg" th:href="@{'/profile'}" role="button">Back</a>-->
+<!--    </main>-->
+
+<!--</div>-->
+<!--</body>-->
+<!--</html>-->

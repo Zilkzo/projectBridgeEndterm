@@ -1,0 +1,27 @@
+<html xmlns:th="http://www.w3.org/1999/xhtml"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layouts/main.html"
+       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body style="background-color: bisque">
+    <div layout:fragment = "contentPart">
+        <div class="jumbotron" th:each = "posts : ${posts}">
+            <h1 class="display-4" th:text = "${posts.title}"></h1>
+            <p class="lead" th:text = "${posts.shortContent}"></p>
+            <hr class="my-4">
+            <p  th:text = "${posts.author.fullName}"></p>
+            <a class="btn btn-primary btn-lg" th:href = "@{'/details/'+${posts.id}}" role="button">Learn more</a>
+            <form th:action = "@{'/deletePost'}" method="post" sec:authorize="hasAnyRole('ROLE_MODERATOR')">
+                <input type="hidden" th:value = "${posts.id}" name="id">
+                <button class="btn btn-danger">DELETE</button>
+            </form>
+<!--            <a sec:authorize="hasAnyRole('ROLE_MODERATOR')" class="btn btn-outline-danger" th:href="@{'/deletePost/' + ${posts.id}}" role="button">DELETE</a>-->
+
+
+        </div>
+    </div>
+</body>
+</html>
